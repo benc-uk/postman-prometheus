@@ -6,28 +6,24 @@
 const URL = require('url')
 
 module.exports = class HTTP {
-  baseUrl = ''
-  auth = null
-  baseHeaders = {}
-  parseResults = true
-  checkStatus = true
-  debug = false
-
   constructor(base, parseResults = true, auth = null, headers = {}, checkStatus = true) {
     this.baseUrl = base
     this.parseResults = parseResults
     this.checkStatus = checkStatus
 
     if (auth) {
-      if (!auth.creds) throw 'HTTP error: auth creds must be set to `token` or `user:password`'
+      if (!auth.creds) {
+        throw 'HTTP error: auth creds must be set to `token` or `user:password`'
+      }
       switch (auth.type.toLowerCase()) {
         case 'bearer':
           this.baseHeaders = { Authorization: `Bearer ${auth.creds}`, ...headers }
           break
-        case 'basic':
+        case 'basic': {
           let basicAuthBuff = Buffer.from(auth.creds)
           this.baseHeaders = { Authorization: `Basic ${basicAuthBuff.toString('base64')}`, ...headers }
           break
+        }
         default:
           throw "HTTP error: auth type must be 'basic' or 'bearer'"
       }
@@ -72,7 +68,9 @@ module.exports = class HTTP {
         req.headers['Content-Length'] = reqBody.length
       }
 
-      if (this.debug) console.log('### HTTP client request:', req, '\n### HTTP client body:', reqBody)
+      if (this.debug) {
+        console.log('### HTTP client request:', req, '\n### HTTP client body:', reqBody)
+      }
 
       const request = httpLib.request(req, (response) => {
         let body = []
@@ -93,9 +91,11 @@ module.exports = class HTTP {
             data,
           }
 
-          if (this.debug) console.log(`### HTTP client response:`, resp)
+          if (this.debug) {
+            console.log(`### HTTP client response:`, resp)
+          }
           if (this.checkStatus && (response.statusCode < 200 || response.statusCode > 299)) {
-            console.error('Error! Request failed with status code: ' + response.statusCode)
+            console.error(`Error! Request failed with status code: ${response.statusCode}`)
             reject(resp)
           }
           resolve(resp)
@@ -103,7 +103,9 @@ module.exports = class HTTP {
       })
 
       request.on('error', (err) => reject(err))
-      if (reqBody) request.write(reqBody)
+      if (reqBody) {
+        request.write(reqBody)
+      }
       request.end()
     })
   }

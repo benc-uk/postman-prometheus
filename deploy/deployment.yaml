@@ -5,16 +5,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: monitor
+  name: monitor-${DEPLOY_SUFFIX}
   namespace: ${DEPLOY_NAMESPACE}
 spec:
   selector:
     matchLabels:
-      app: monitor
+      app: monitor-${DEPLOY_SUFFIX}
   template:
     metadata:
       labels:
-        app: monitor
+        app: monitor-${DEPLOY_SUFFIX}
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '8080'
@@ -36,7 +36,7 @@ spec:
               value: 'false'
           resources:
             limits:
-              memory: '128Mi'
+              memory: '150Mi'
               cpu: '100m'
           ports:
             - containerPort: 8080

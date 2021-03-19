@@ -6,8 +6,8 @@
   "author": "Ben Coleman",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint . && prettier --check server.js",
-    "lint-fix": "eslint . --fix && prettier --write server.js",
+    "lint": "eslint . && prettier --check *.js",
+    "lint-fix": "eslint . --fix && prettier --write *.js",
     "start": "node server.js"
   },
   "dependencies": {
