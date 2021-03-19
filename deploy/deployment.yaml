@@ -1,0 +1,42 @@
+#
+# Deploy the Newman/Postman runner
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitor
+  namespace: ${DEPLOY_NAMESPACE}
+spec:
+  selector:
+    matchLabels:
+      app: monitor
+  template:
+    metadata:
+      labels:
+        app: monitor
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8080'
+    spec:
+      containers:
+        - name: runner
+          image: ${DEPLOY_IMAGE}
+          imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: '8080'
+            - name: COLLECTION_URL
+              value: '${DEPLOY_COLLECTION_URL}'
+            - name: RUN_ITERATIONS
+              value: '${DEPLOY_ITERATIONS}'
+            - name: RUN_INTERVAL
+              value: '${DEPLOY_INTERVAL}'
+            - name: ENABLE_BAIL
+              value: 'false'
+          resources:
+            limits:
+              memory: '128Mi'
+              cpu: '100m'
+          ports:
+            - containerPort: 8080

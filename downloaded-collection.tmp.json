@@ -1,0 +1,74 @@
+{
+  "info": {
+    "_postman_id": "f2e21459-407f-4ddf-998a-202a4d66e8fd",
+    "name": "Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Home",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"result is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"content found on page\", function () {\r",
+              "    let f = Math.random()\r",
+              "    pm.expect(f).to.be.greaterThan(0.5)\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://benc.dev",
+          "protocol": "https",
+          "host": ["benc", "dev"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Minis",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"result is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"content found on page\", function () {\r",
+              "    let f = Math.random()\r",
+              "    pm.expect(f).to.be.greaterThan(0.5)\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://benc.dev/minis/",
+          "protocol": "https",
+          "host": ["benc", "dev"],
+          "path": ["minis", ""]
+        }
+      },
+      "response": []
+    }
+  ]
+}
