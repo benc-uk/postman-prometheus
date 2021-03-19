@@ -1,0 +1,41 @@
+name: CI Build
+
+# This is a generic CI pipeline that assumes project is to be built as a container image
+# Note. CI build only builds 'latest' image, not a versioned release
+# Note. REGISTRY_PASSWORD secret must be set and change the IMAGE_NAME
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  IMAGE_REG: ghcr.io
+  IMAGE_REPO: benc-uk/postman-prometheus
+  IMAGE_TAG: latest
+
+jobs:
+  ci-build:
+    name: Code Check & CI build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code from repo
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      # Validate code
+      - name: Check code for linting and format errors
+        run: make lint
+
+      # Build image
+      - name: Build the container image
+        run: make image
+
+      # Only when pushing to default branch (e.g. master or main), then push image to registry
+      - name: Push to container registry
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo ${{ secrets.REGISTRY_PASSWORD }} | docker login $IMAGE_REG -u $GITHUB_ACTOR --password-stdin
+          make push

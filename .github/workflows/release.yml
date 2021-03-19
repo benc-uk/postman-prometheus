@@ -1,0 +1,36 @@
+name: Release Assets
+
+# This is a generic release pipeline that assumes project is to be built as a container image
+# This is triggered on a GitHub release
+# Note. REGISTRY_PASSWORD secret must be set and change the IMAGE_NAME
+
+on:
+  # Workflow runs when a release is created in GitHub
+  release:
+    types: [published]
+
+env:
+  IMAGE_REG: ghcr.io
+  IMAGE_NAME: __CHANGE_ME__
+
+jobs:
+  release:
+    name: Release image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      # Build image tagged with release tag name, should be a semver
+      - name: Build the container image
+        run: make image IMAGE_REPO=$GITHUB_ACTOR/$IMAGE_NAME IMAGE_TAG=${{ github.event.release.tag_name }}
+
+      # Then push image to registry
+      - name: Push to container registry
+        run: |
+          echo ${{ secrets.REGISTRY_PASSWORD }} | docker login $IMAGE_REG -u $GITHUB_ACTOR --password-stdin
+          make push IMAGE_REPO=$GITHUB_ACTOR/$IMAGE_NAME IMAGE_TAG=${{ github.event.release.tag_name }}
+
+      # Anything else here
+      - name: Other steps
+        run: echo "Not implemented yet!"
