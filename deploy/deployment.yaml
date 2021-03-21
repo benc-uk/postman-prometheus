@@ -1,5 +1,5 @@
 #
-# Deploy the Newman/Postman runner
+# Deploy the Newman/Postman runner and monitor
 #
 
 apiVersion: apps/v1

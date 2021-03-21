@@ -1,12 +1,13 @@
 FROM node:14-alpine
 
 ARG collectionFile
+ARG srcDir=src
 
-COPY package*.json ./
+COPY $srcDir/package*.json ./
 RUN npm install --production --silent
 
 WORKDIR /runner
-COPY *.js ./
+COPY $srcDir/*.js ./
 
 COPY ${collectionFile} ./collection.json
 

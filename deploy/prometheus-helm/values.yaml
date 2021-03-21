@@ -1,0 +1,42 @@
+alertmanager:
+  enabled: true
+server:
+  enabled: true
+nodeExporter:
+  enabled: false
+kubeStateMetrics:
+  enabled: false
+pushgateway:
+  enabled: false
+
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: myalerts
+        rules:
+          - alert: PostmanAssertionsFailed
+            expr: postman_stats_assertions_failed > 0
+            for: 1m
+            annotations:
+              summary: Postman collection run, one or more assertions failed
+          - alert: PostmanRequestsFailed
+            expr: postman_stats_requests_failed > 0
+            for: 1m
+            annotations:
+              summary: Postman collection run, one or more requests failed
+
+alertmanagerFiles:
+  alertmanager.yml:
+    global: {}
+    receivers:
+      - name: email-me
+        email_configs:
+          - to: benc.uk@gmail.com
+            from: benc.uk@gmail.com
+            smarthost: smtp.gmail.com:587
+            auth_username: 'benc.uk@gmail.com'
+            auth_identity: 'benc.uk@gmail.com'
+            auth_password: 'jaazstiqmzxadsrd'
+    route:
+      group_by: [Alertname]
+      receiver: email-me

@@ -2,11 +2,15 @@ IMAGE_REG ?= ghcr.io
 IMAGE_REPO ?= benc-uk/postman-prometheus
 IMAGE_TAG ?= latest
 
+SRC_DIR := src
+ROOT_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 # Used when running locally
-COLLECTION_FILE ?= ./samples/my-blog.json
+COLLECTION_FILE ?= $(ROOT_DIR)/samples/my-blog.json
 
 # Used when deploying to Kubernetes
-DEPLOY_NAMESPACE ?= default
+# Override these when calling `make deploy`
+DEPLOY_NAMESPACE ?= monitoring
 DEPLOY_SUFFIX ?= blog
 DEPLOY_ITERATIONS ?= 2
 DEPLOY_INTERVAL ?= 30
@@ -20,31 +24,31 @@ DEPLOY_IMAGE := $(IMAGE_REG)/$(IMAGE_REPO):$(IMAGE_TAG)
 help:  ## This help message 😁
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-lint: node_modules  ## Lint & format, will not fix but sets exit code on error 🔎
-	npm run lint
+lint: $(SRC_DIR)/node_modules  ## Lint & format, will not fix but sets exit code on error 🔎
+	cd $(SRC_DIR); npm run lint
 
-lint-fix: node_modules  ## Lint & format, will try to fix errors and modify code 📜
-	npm run lint-fix
+lint-fix: $(SRC_DIR)/node_modules  ## Lint & format, will try to fix errors and modify code 📜
+	cd $(SRC_DIR); npm run lint-fix
 
 image:  ## Build container image from Dockerfile 🔨
-	docker build . --file ./Dockerfile \
+	docker build . --file build/Dockerfile \
 	--tag $(IMAGE_REG)/$(IMAGE_REPO):$(IMAGE_TAG)
 
 push:  ## Push container image to registry 📤
 	docker push $(IMAGE_REG)/$(IMAGE_REPO):$(IMAGE_TAG)
 
-run: node_modules .EXPORT_ALL_VARIABLES  ## Run locally using Node.js 🏃‍
-	npm start
+run: $(SRC_DIR)/node_modules .EXPORT_ALL_VARIABLES  ## Run locally using Node.js 🏃‍
+	cd $(SRC_DIR); npm start
 
 deploy: .EXPORT_ALL_VARIABLES  ## Deploy to Kubernetes 🚀
-	 cat deploy/deployment.yaml | envsubst | kubectl apply -f -
+	cat deploy/deployment.yaml | envsubst | kubectl apply -f -
 
 undeploy: .EXPORT_ALL_VARIABLES  ## Remove from Kubernetes 💀
-	 cat deploy/deployment.yaml | envsubst | kubectl delete -f - || true
+	cat deploy/deployment.yaml | envsubst | kubectl delete -f - || true
 
-node_modules: package.json
-	npm install --silent
-	touch -m node_modules
+$(SRC_DIR)/node_modules: $(SRC_DIR)/package.json
+	cd $(SRC_DIR); npm install --silent
+	touch -m cd $(SRC_DIR)/node_modules
 
-package.json: 
+$(SRC_DIR)/package.json: 
 	@echo "package.json was modified"
