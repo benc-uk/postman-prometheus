@@ -36,7 +36,8 @@ spec:
               value: 'false'
           resources:
             limits:
-              memory: '150Mi'
-              cpu: '100m'
+              # Why so high? well I think some of the post requests script use a lot of mem
+              memory: '300Mi'
+              cpu: '200m'
           ports:
             - containerPort: 8080

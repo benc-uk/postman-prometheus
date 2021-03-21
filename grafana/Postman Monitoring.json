@@ -12,6 +12,12 @@
   "__requires": [
     {
       "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
       "id": "gauge",
       "name": "Gauge",
       "version": ""
@@ -52,7 +58,6 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1616174354701,
   "links": [],
   "panels": [
     {
@@ -68,6 +73,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "${DS_PROMETHEUS}",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {},
@@ -83,7 +89,7 @@
       "fill": 1,
       "fillGradient": 10,
       "gridPos": {
-        "h": 14,
+        "h": 11,
         "w": 24,
         "x": 0,
         "y": 0
@@ -118,20 +124,20 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "postman_timings_resp_avg",
+          "expr": "postman_stats_resp_avg",
           "interval": "",
           "legendFormat": "{{collection}} avg",
           "refId": "A"
         },
         {
-          "expr": "postman_timings_resp_max",
+          "expr": "postman_stats_resp_max",
           "hide": false,
           "interval": "",
           "legendFormat": "{{collection}} max",
           "refId": "B"
         },
         {
-          "expr": "postman_timings_resp_min",
+          "expr": "postman_stats_resp_min",
           "hide": false,
           "interval": "",
           "legendFormat": "{{collection}} min",
@@ -142,7 +148,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Response Time",
+      "title": "Collection Response Time",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -212,10 +218,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 8,
         "x": 0,
-        "y": 14
+        "y": 11
       },
       "id": 4,
       "options": {
@@ -274,10 +280,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 8,
         "x": 8,
-        "y": 14
+        "y": 11
       },
       "id": 5,
       "options": {
@@ -336,10 +342,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 8,
         "x": 16,
-        "y": 14
+        "y": 11
       },
       "id": 6,
       "options": {
@@ -380,12 +386,12 @@
         "overrides": []
       },
       "fill": 1,
-      "fillGradient": 0,
+      "fillGradient": 8,
       "gridPos": {
-        "h": 6,
-        "w": 24,
+        "h": 10,
+        "w": 12,
         "x": 0,
-        "y": 22
+        "y": 17
       },
       "hiddenSeries": false,
       "id": 8,
@@ -399,7 +405,7 @@
         "values": false
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 3,
       "nullPointMode": "null",
       "options": {
         "alertThreshold": true
@@ -415,15 +421,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(postman_lifetime_requests_total[2m])",
+          "expr": "avg by (request_name) (postman_request_resp_time)",
           "interval": "",
-          "legendFormat": "{{collection}}",
+          "legendFormat": "{{request_name}}",
           "refId": "A"
         }
       ],
       "thresholds": [],
+      "timeFrom": null,
       "timeRegions": [],
-      "title": "Request Rate",
+      "timeShift": null,
+      "title": "Request Times",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -461,6 +469,66 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 0.00001
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
+      "id": 9,
+      "options": {
+        "displayMode": "lcd",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": false,
+        "text": {}
+      },
+      "pluginVersion": "7.4.2",
+      "targets": [
+        {
+          "expr": "min by (request_name) (postman_request_status_ok)",
+          "interval": "",
+          "legendFormat": "{{request_name}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Request Status",
+      "type": "bargauge"
     }
   ],
   "refresh": "1m",
@@ -468,35 +536,7 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "definition": "postman_stats_iterations_total",
-        "description": null,
-        "error": null,
-        "hide": 0,
-        "includeAll": false,
-        "label": "Collection",
-        "multi": false,
-        "name": "collection",
-        "options": [],
-        "query": {
-          "query": "postman_stats_iterations_total",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "/.*collection=\"(.*?)\"/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-15m",

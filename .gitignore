@@ -1,3 +1,4 @@
 node_modules/
 *.tmp.json
-*.sample.*
+deploy/prometheus-helm/*.yaml
+!deploy/prometheus-helm/*.sample.yaml

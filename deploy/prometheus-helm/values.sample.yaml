@@ -14,6 +14,7 @@ serverFiles:
     groups:
       - name: myalerts
         rules:
+          # Sets up alert for any assertion fails
           - alert: PostmanAssertionsFailed
             expr: postman_stats_assertions_failed > 0
             for: 1m
@@ -25,18 +26,19 @@ serverFiles:
             annotations:
               summary: Postman collection run, one or more requests failed
 
+# Sets up alertmanager to use GMail for email alerts
 alertmanagerFiles:
   alertmanager.yml:
     global: {}
     receivers:
       - name: email-me
         email_configs:
-          - to: benc.uk@gmail.com
-            from: benc.uk@gmail.com
+          - to: __CHANGE_ME__@gmail.com
+            from: __CHANGE_ME__@gmail.com
             smarthost: smtp.gmail.com:587
-            auth_username: 'benc.uk@gmail.com'
-            auth_identity: 'benc.uk@gmail.com'
-            auth_password: 'jaazstiqmzxadsrd'
+            auth_username: '__CHANGE_ME__@gmail.com'
+            auth_identity: '__CHANGE_ME__@gmail.com'
+            auth_password: '__CHANGE_ME__'
     route:
       group_by: [Alertname]
       receiver: email-me
