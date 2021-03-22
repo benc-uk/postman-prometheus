@@ -1,55 +1,46 @@
 {
-	"info": {
-		"_postman_id": "9f3f2121-d5cd-4bb3-8253-dc4b5d24b501",
-		"name": "PS5 Stock Check",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Amazon Stock",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"no stock\", () => {\r",
-							"  pm.response.to.have.status(200);\r",
-							"  pm.expect(pm.response.text()).to.contain(\"Currently unavailable\")\r",
-							"})"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"user-agent": true,
-					"accept": true,
-					"accept-encoding": true,
-					"connection": true
-				},
-				"disableCookies": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://www.amazon.co.uk/PlayStation-9395003-5-Console/dp/B08H95Y452",
-					"protocol": "https",
-					"host": [
-						"www",
-						"amazon",
-						"co",
-						"uk"
-					],
-					"path": [
-						"PlayStation-9395003-5-Console",
-						"dp",
-						"B08H95Y452"
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "9f3f2121-d5cd-4bb3-8253-dc4b5d24b501",
+    "name": "PS5 Stock Check",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Amazon Stock",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"no stock\", () => {\r",
+              "  pm.response.to.have.status(200);\r",
+              "  pm.expect(pm.response.text()).to.not.contain(\"Add to Shopping Basket\")\r",
+              "})"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {
+          "user-agent": true,
+          "accept": true,
+          "accept-encoding": true,
+          "connection": true
+        },
+        "disableCookies": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://www.amazon.co.uk/PlayStation-9395003-5-Console/dp/B08H95Y452",
+          "protocol": "https",
+          "host": ["www", "amazon", "co", "uk"],
+          "path": ["PlayStation-9395003-5-Console", "dp", "B08H95Y452"]
+        }
+      },
+      "response": []
+    }
+  ]
 }
