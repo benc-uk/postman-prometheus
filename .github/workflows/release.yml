@@ -23,6 +23,7 @@ jobs:
 
       # Then push image to registry
       - name: Push to container registry
+        if: ${{ !env.ACT }}
         run: |
           echo ${{ secrets.REGISTRY_PASSWORD }} | docker login $IMAGE_REG -u $GITHUB_ACTOR --password-stdin
           make push IMAGE_TAG=${{ github.event.release.tag_name }}

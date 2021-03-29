@@ -2,3 +2,4 @@ node_modules/
 *.tmp.json
 deploy/prometheus-helm/*.yaml
 !deploy/prometheus-helm/*.sample.yaml
+.secrets

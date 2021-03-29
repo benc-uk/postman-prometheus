@@ -48,7 +48,7 @@ undeploy: .EXPORT_ALL_VARIABLES  ## Remove from Kubernetes 💀
 
 $(SRC_DIR)/node_modules: $(SRC_DIR)/package.json
 	cd $(SRC_DIR); npm install --silent
-	touch -m cd $(SRC_DIR)/node_modules
+	touch -m $(SRC_DIR)/node_modules
 
 $(SRC_DIR)/package.json: 
 	@echo "package.json was modified"

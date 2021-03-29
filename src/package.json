@@ -15,7 +15,7 @@
     "newman": "^5.2.2"
   },
   "devDependencies": {
-    "eslint": "^7.18.0",
+    "eslint": "^7.23.0",
     "prettier": "^2.2.1"
   }
 }
