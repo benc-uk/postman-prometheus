@@ -14,69 +14,14 @@ const requestMetrics = process.env.ENABLE_REQUEST_METRICS || 'true'
 
 let collectionName = ''
 let resultSummary = {}
+
+// Lifetime global counters
 let runCount = 0
 let iterationCount = 0
 let reqCount = 0
 
-function runCollection() {
-  logMessage(`Starting run of ${collectionFile}`)
-  newman.run(
-    {
-      collection: require(collectionFile),
-      iterationCount: parseInt(runIterations),
-      bail: enableBail == 'true',
-      environment: envFile,
-    },
-    runComplete
-  )
-}
-
-function runComplete(err, summary) {
-  if (!summary) {
-    logMessage(`ERROR! Failed to run collection, no summary was returned!`)
-    return
-  }
-
-  fs.writeFileSync('debug.tmp.json', JSON.stringify(summary))
-
-  const time = summary.run.timings.completed - summary.run.timings.started
-  logMessage(`Run complete, and took ${time}ms`)
-
-  runCount++
-  iterationCount += summary.run.stats.iterations.total
-  reqCount += summary.run.stats.requests.total
-
-  if (err) {
-    logMessage(`ERROR! Failed to run collection ${err}`)
-  }
-  resultSummary = summary
-  collectionName = summary.collection.name
-}
-
-function addMetric(metrics, name, value, type = 'gauge', labels = []) {
-  metrics += `# TYPE postman_${name} ${type}\n`
-
-  let labelsClone = [...labels]
-  labelsClone.push({ collection: collectionName })
-
-  let labelStr = ''
-  for (let label of labelsClone) {
-    let key = Object.keys(label)[0]
-    let value = Object.values(label)[0]
-    labelStr += `${key}="${value}",`
-  }
-  labelStr = labelStr.replace(/,\s*$/, '')
-
-  metrics += `postman_${name}{${labelStr}} ${value}\n\n`
-  return metrics
-}
-
-function logMessage(msg) {
-  console.log(`### ${new Date().toISOString().replace('T', ' ').substr(0, 16)} ${msg}`)
-}
-
 //
-// Entrypoint is here....
+// Entrypoint and server startup is here....
 //
 
 const app = express()
@@ -147,18 +92,21 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, async () => {
+  // COLLECTION_URL when set takes priority over COLLECTION_FILE
   if (collectionUrl) {
     logMessage(`Collection URL will be fetched and used ${collectionUrl}`)
     try {
       const h = new http(collectionUrl, false)
       let resp = await h.get('')
       fs.writeFileSync(`./downloaded-collection.tmp.json`, resp.data)
+      // Note. Overwrite the COLLECTION_FILE setting if it was already set
       collectionFile = './downloaded-collection.tmp.json'
     } catch (err) {
       logMessage(`FATAL! Failed to download collection from URL\n ${JSON.stringify(err, null, 2)}`)
       process.exit(1)
     }
   }
+
   if (!fs.existsSync(collectionFile)) {
     logMessage(`FATAL! Collection file '${collectionFile}' not found`)
     process.exit(1)
@@ -170,3 +118,64 @@ app.listen(port, async () => {
   runCollection()
   setInterval(runCollection, parseInt(runInterval * 1000))
 })
+
+//
+// Monitoring and Prometheus functions
+//
+
+function runCollection() {
+  logMessage(`Starting run of ${collectionFile}`)
+  newman.run(
+    {
+      collection: require(collectionFile),
+      iterationCount: parseInt(runIterations),
+      bail: enableBail == 'true',
+      environment: envFile,
+    },
+    runComplete
+  )
+}
+
+function runComplete(err, summary) {
+  if (!summary) {
+    logMessage(`ERROR! Failed to run collection, no summary was returned!`)
+    return
+  }
+
+  fs.writeFileSync('debug.tmp.json', JSON.stringify(summary))
+
+  const time = summary.run.timings.completed - summary.run.timings.started
+  logMessage(`Run complete, and took ${time}ms`)
+
+  runCount++
+  iterationCount += summary.run.stats.iterations.total
+  reqCount += summary.run.stats.requests.total
+
+  if (err) {
+    logMessage(`ERROR! Failed to run collection ${err}`)
+  }
+  resultSummary = summary
+  collectionName = summary.collection.name
+}
+
+function addMetric(metrics, name, value, type = 'gauge', labels = []) {
+  metrics += `# TYPE postman_${name} ${type}\n`
+
+  let labelsClone = [...labels]
+  labelsClone.push({ collection: collectionName })
+
+  let labelStr = ''
+  for (let label of labelsClone) {
+    let key = Object.keys(label)[0]
+    let value = Object.values(label)[0]
+    labelStr += `${key}="${value}",`
+  }
+  labelStr = labelStr.replace(/,\s*$/, '')
+
+  metrics += `postman_${name}{${labelStr}} ${value}\n\n`
+  return metrics
+}
+
+function logMessage(msg) {
+  console.log(`### ${new Date().toISOString().replace('T', ' ').substr(0, 16)} ${msg}`)
+}

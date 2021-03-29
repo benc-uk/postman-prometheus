@@ -27,6 +27,8 @@ Use cases & key features:
 
 This is a screenshot of the provided Grafana dashboard
 
+The dashboard can be found in the [grafana directory](https://github.com/benc-uk/postman-prometheus/tree/main/grafana) as a JSON file which you can import.
+
 ![screen shot of dashboard](https://user-images.githubusercontent.com/14982936/111913204-fd8a6400-8a64-11eb-95c1-a40f4828d05f.png)
 
 # Config
