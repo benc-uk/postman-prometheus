@@ -1,0 +1,10 @@
+#
+# This file might sound important but...
+# It is only used by the hosting on GitHub Pages, it has no other importance to the project!
+#
+
+title: 'HTTP Monitor with Postman & Prometheus'
+remote_theme: benc-uk/theme-msdark
+#favicon: web/frontend/public/logo.png
+plugins:
+  - jemoji
