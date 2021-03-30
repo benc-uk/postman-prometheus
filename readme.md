@@ -43,6 +43,14 @@ The dashboard can be found in the [grafana directory](https://github.com/benc-uk
 | ENABLE_BAIL            | Stops the run when a test case or request fails                  | false             |
 | ENABLE_REQUEST_METRICS | Disable the per-request metrics if you wish                      | true              |
 | ENVIRONMENT_FILE       | Path to a Postman environment file                               | _none_            |
+| POSTMAN\_{varname}     | Environment vars to pass to running the collection               | _none_            |
+
+## Note on Postman variables
+
+Postman/Newman can [accept variables a number of ways](https://learning.postman.com/docs/sending-requests/variables/) with this runner you supply values for any variables your scripts reference in two ways:
+
+- Environments file, created by defining an environment in Postman and [exporting as JSON](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#exporting-environments)
+- Using special `POSTMAN_{varname}` environment vars, set as regular OS environment vars (therefor settable at runtime from Docker and Kubernetes). The prefix `POSTMAN_` is required and stripped off, leaving the name of the variable to set when running the collection, e.g. if your Postman request referenced a variable `{{myvar}}` you can set it using `POSTMAN_myvar=foo`
 
 # Repo Contents
 

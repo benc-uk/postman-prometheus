@@ -10,3 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Everything
+
+## [1.1.0] - 2021-30-03
+
+### Added
+
+- Support for setting vars at runtime using `POSTMAN_{var}`

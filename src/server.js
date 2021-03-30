@@ -125,12 +125,26 @@ app.listen(port, async () => {
 
 function runCollection() {
   logMessage(`Starting run of ${collectionFile}`)
+
+  // Special logic to bring all env vars starting with POSTMAN_ into the run
+  let postmanEnvVar = []
+  for (let envVar in process.env) {
+    if (envVar.startsWith('POSTMAN_')) {
+      postmanEnvVar.push({
+        // Remove the prefix
+        key: envVar.replace('POSTMAN_', ''),
+        value: process.env[envVar],
+      })
+    }
+  }
+
   newman.run(
     {
       collection: require(collectionFile),
       iterationCount: parseInt(runIterations),
       bail: enableBail == 'true',
       environment: envFile,
+      envVar: postmanEnvVar,
     },
     runComplete
   )
