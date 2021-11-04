@@ -77,6 +77,20 @@ app.get('/metrics', (req, res) => {
           const statusOK = execution.response.status == 'OK' ? 1 : 0
           metricString = addMetric(metricString, 'request_status_ok', statusOK, 'gauge', labels)
         }
+
+        let failedAssertions = 0
+        let totalAssertions = 0
+        // Include per request assertion metrics
+        if (execution.assertions) {
+          for (let a in execution.assertions) {
+            totalAssertions++
+            if (execution.assertions[a].error) {
+              failedAssertions++
+            }
+          }
+        }
+        metricString = addMetric(metricString, 'request_failed_assertions', failedAssertions, 'gauge', labels)
+        metricString = addMetric(metricString, 'request_total_assertions', totalAssertions, 'gauge', labels)
       }
     }
 
@@ -96,8 +110,8 @@ app.listen(port, async () => {
   if (collectionUrl) {
     logMessage(`Collection URL will be fetched and used ${collectionUrl}`)
     try {
-      const h = new http(collectionUrl, false)
-      let resp = await h.get('')
+      const httpClient = new http(collectionUrl, false)
+      let resp = await httpClient.get('')
       fs.writeFileSync(`./downloaded-collection.tmp.json`, resp.data)
       // Note. Overwrite the COLLECTION_FILE setting if it was already set
       collectionFile = './downloaded-collection.tmp.json'
@@ -156,7 +170,16 @@ function runComplete(err, summary) {
     return
   }
 
-  fs.writeFileSync('debug.tmp.json', JSON.stringify(summary))
+  for (let e in summary.run.executions) {
+    summary.run.executions[e].response.stream = '*REMOVED*'
+    for (let a in summary.run.executions[e].assertions) {
+      if (summary.run.executions[e].assertions[a].error) {
+        summary.run.executions[e].assertions[a].error.message = '*REMOVED*'
+        summary.run.executions[e].assertions[a].error.stack = '*REMOVED*'
+      }
+    }
+  }
+  fs.writeFileSync('debug.tmp.json', JSON.stringify(summary, null, 2))
 
   const time = summary.run.timings.completed - summary.run.timings.started
   logMessage(`Run complete, and took ${time}ms`)
