@@ -68,15 +68,18 @@ Just about everything you need to do with this project has been put into make
 ```txt
 $ make
 
-help                 This help message 😁
-run                  Run locally (requires Node.js) 🏃‍
-image                Build container image from Dockerfile 🔨
-lint-fix             Lint & format, will try to fix errors and modify code 📜
-lint                 Lint & format, will not fix but sets exit code on error 🔎
-push                 Push container image to registry 📤
-deploy               Deploy to Kubernetes 🚀
-undeploy             Remove from Kubernetes 💀
+help                 💬 This help message 
+run                  🥈 Run locally (requires Node.js) ‍
+image                🔨 Build container image from Dockerfile 
+lint-fix             📜 Lint & format, will try to fix errors and modify code 
+lint                 🔎 Lint & format, will not fix but sets exit code on error 
+push                 📤 Push container image to registry
+deploy               🚀 Deploy to Kubernetes 
+undeploy             💀 Remove from Kubernetes 
 ```
+
+The `deploy` target provides a lightweight "Helm-less" way to deploy to Kubernetes, using envsubst, makefile variables and deploy/deployment.yaml as a template.
+Before running `make deploy` check the `DEPLOY_` variables in the makefile, then either edit or override these
 
 # Exported Metrics
 
@@ -106,7 +109,7 @@ postman_lifetime_requests_total{collection="Example"} 276
 postman_stats_iterations_total{collection="Example"} 2
 
 # TYPE postman_stats_iterations_failed gauge
-postman_stats_iterations_failed{collection="Example"} 0
+postman_stats_iterations_failed{collection="Example"} 0 
 
 # TYPE postman_stats_requests_total gauge
 postman_stats_requests_total{collection="Example"} 4
@@ -159,4 +162,10 @@ postman_request_resp_size{request_name="Some Example Request",iteration="0",coll
 
 # TYPE postman_request_status_ok gauge
 postman_request_status_ok{request_name="Some Example Request",iteration="0",collection="Example"} 1
+
+# TYPE postman_request_failed_assertions gauge
+postman_request_failed_assertions{request_name="Some Example Request",iteration="0",collection="Example"} 0
+
+# TYPE postman_request_total_assertions gauge
+postman_request_total_assertions{request_name="Some Example Request",iteration="0",collection="Example"} 3
 ```
