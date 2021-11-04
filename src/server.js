@@ -170,6 +170,7 @@ function runComplete(err, summary) {
     return
   }
 
+  // This removes some of the INSANE output from Newman, so the JSON is actually readable
   for (let e in summary.run.executions) {
     summary.run.executions[e].response.stream = '*REMOVED*'
     for (let a in summary.run.executions[e].assertions) {
