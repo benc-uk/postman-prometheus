@@ -1,0 +1,40 @@
+{
+  "info": {
+    "_postman_id": "46472bce-191c-4a44-8746-60ce2c3ff7a9",
+    "name": "Monitor Example",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Example Page",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"result is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"content found on page\", function () {\r",
+              "    pm.expect(pm.response.text()).to.contain(\"Example Domain\")\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://example.net/",
+          "protocol": "https",
+          "host": ["example", "net"]
+        }
+      },
+      "response": []
+    }
+  ]
+}
