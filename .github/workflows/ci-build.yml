@@ -17,6 +17,9 @@ env:
   IMAGE_REPO: benc-uk/postman-prometheus
   IMAGE_TAG: latest
 
+permissions:
+  packages: write
+
 jobs:
   ci-build:
     name: Code Check & CI build
@@ -39,5 +42,5 @@ jobs:
       - name: Push to container registry
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && !env.ACT
         run: |
-          echo ${{ secrets.REGISTRY_PASSWORD }} | docker login $IMAGE_REG -u $GITHUB_ACTOR --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login $IMAGE_REG -u $GITHUB_ACTOR --password-stdin
           make push
