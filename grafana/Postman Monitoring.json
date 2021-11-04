@@ -12,12 +12,6 @@
   "__requires": [
     {
       "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
-    },
-    {
-      "type": "panel",
       "id": "gauge",
       "name": "Gauge",
       "version": ""
@@ -26,12 +20,12 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "7.4.2"
+      "version": "8.2.2"
     },
     {
       "type": "panel",
       "id": "graph",
-      "name": "Graph",
+      "name": "Graph (old)",
       "version": ""
     },
     {
@@ -39,6 +33,12 @@
       "id": "prometheus",
       "name": "Prometheus",
       "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
     }
   ],
   "annotations": {
@@ -50,15 +50,23 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "aliasColors": {
@@ -76,12 +84,6 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {},
-          "custom": {},
-          "thresholds": {
-            "mode": "absolute",
-            "steps": []
-          },
           "unit": "short"
         },
         "overrides": []
@@ -89,7 +91,7 @@
       "fill": 1,
       "fillGradient": 10,
       "gridPos": {
-        "h": 11,
+        "h": 9,
         "w": 24,
         "x": 0,
         "y": 0
@@ -114,7 +116,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "8.2.2",
       "pointradius": 1,
       "points": false,
       "renderer": "flot",
@@ -194,8 +196,9 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -218,13 +221,14 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 8,
         "x": 0,
-        "y": 11
+        "y": 9
       },
       "id": 4,
       "options": {
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -236,7 +240,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "8.2.2",
       "targets": [
         {
           "expr": "postman_stats_assertions_failed/postman_stats_assertions_total",
@@ -256,8 +260,9 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -280,13 +285,14 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 8,
         "x": 8,
-        "y": 11
+        "y": 9
       },
       "id": 5,
       "options": {
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -298,7 +304,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "8.2.2",
       "targets": [
         {
           "expr": "postman_stats_requests_failed/postman_stats_requests_total",
@@ -318,8 +324,9 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -342,13 +349,14 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 8,
         "x": 16,
-        "y": 11
+        "y": 9
       },
       "id": 6,
       "options": {
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -360,7 +368,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "8.2.2",
       "targets": [
         {
           "expr": "postman_stats_tests_failed/postman_stats_tests_total",
@@ -379,19 +387,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "${DS_PROMETHEUS}",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
       "fill": 1,
       "fillGradient": 8,
       "gridPos": {
-        "h": 10,
-        "w": 12,
+        "h": 8,
+        "w": 8,
         "x": 0,
-        "y": 17
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 8,
@@ -411,7 +413,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "8.2.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -477,8 +479,9 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -497,14 +500,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 17
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 14
       },
       "id": 9,
       "options": {
-        "displayMode": "lcd",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -513,10 +518,10 @@
           "fields": "",
           "values": false
         },
-        "showUnfilled": false,
-        "text": {}
+        "text": {},
+        "textMode": "auto"
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "8.2.2",
       "targets": [
         {
           "expr": "min by (request_name) (postman_request_status_ok)",
@@ -528,11 +533,76 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Request Status",
-      "type": "bargauge"
+      "type": "stat"
+    },
+    {
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.2.2",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "min by (request_name) (1-postman_request_failed_assertions/postman_request_total_assertions)",
+          "interval": "",
+          "legendFormat": "{{request_name}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Request Test Assertions",
+      "type": "stat"
     }
   ],
-  "refresh": "1m",
-  "schemaVersion": 27,
+  "refresh": false,
+  "schemaVersion": 31,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -546,5 +616,5 @@
   "timezone": "",
   "title": "Postman Monitoring",
   "uid": "kck6rnQMk",
-  "version": 7
+  "version": 8
 }
