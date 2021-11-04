@@ -33,7 +33,7 @@ The dashboard can be found in the [grafana directory](https://github.com/benc-uk
 
 # Config
 
-| Environmental Varibale | Purpose                                                          | Default           |
+| Environmental Variable | Purpose                                                          | Default           |
 | ---------------------- | ---------------------------------------------------------------- | ----------------- |
 | PORT                   | Port the server listens on                                       | 8080              |
 | COLLECTION_FILE        | Path to Postman collection file to load and use                  | ./collection.json |
