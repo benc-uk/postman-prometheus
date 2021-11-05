@@ -1,6 +1,8 @@
 # Postman Monitor with Prometheus
 
-This project provides a small Node.js based server which will run a Postman collection continuously on regular short interval. It uses the Newman library that Postman provides, and exposes various metrics and stats in Prometheus exposition format so the can be scraped by Prometheus. This allows you to proactively monitor any Postman collection you wish, from wherever you wish
+This project provides a small Node.js based server which will run a Postman collection continuously on regular interval. It uses the Newman library that Postman provides, and exposes various HTTP and request metrics and stats in Prometheus exposition format so they can be scraped by Prometheus. This allows you to proactively monitor any Postman collection you wish, from wherever you wish.
+
+You can use this to monitor the health and performance of web sites and REST APIs, and by using test assertions (see below) you can validate the contents returned, status codes, headers etc. Even chain requests together extracting variables from one request to use with another.
 
 By default the server listens on port 8080 and provides metrics at the standard `/metrics` endpoint. The collection you want to run can be fetched by the runner at startup from a URL you supply, or you can build the runner container with the collection file copied into the image.
 
