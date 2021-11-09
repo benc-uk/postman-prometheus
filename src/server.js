@@ -170,11 +170,22 @@ function runComplete(err, summary) {
     return
   }
 
-  // This removes some of the insaely verbose output from Newman, so the JSON is actually readable
+  // This post run loop is for logging of what happened and some data clean up
   for (let e in summary.run.executions) {
+    logMessage(
+      ` - Completed request '${summary.run.executions[e].item.name}' in ${summary.run.executions[e].response.responseTime} ms`
+    )
+
+    // Junk we don't want in data
     summary.run.executions[e].response.stream = '*REMOVED*'
+
     for (let a in summary.run.executions[e].assertions) {
       if (summary.run.executions[e].assertions[a].error) {
+        logMessage(
+          `ERROR! Request '${summary.run.executions[e].item.name}' - assertion failed: ${summary.run.executions[e].assertions[a].error.test}, Reason: ${summary.run.executions[e].assertions[a].error.message}`
+        )
+
+        // Junk we don't want in data
         summary.run.executions[e].assertions[a].error.message = '*REMOVED*'
         summary.run.executions[e].assertions[a].error.stack = '*REMOVED*'
       }
