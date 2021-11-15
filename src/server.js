@@ -6,6 +6,7 @@ const http = require('./http.js')
 let collectionFile = process.env.COLLECTION_FILE || './collection.json'
 const collectionUrl = process.env.COLLECTION_URL || ''
 const envFile = process.env.ENVIRONMENT_FILE || ''
+const envUrl = process.env.ENV_URL || ''
 const port = process.env.PORT || '8080'
 const runInterval = process.env.RUN_INTERVAL || '30'
 const runIterations = process.env.RUN_ITERATIONS || '1'
@@ -117,6 +118,21 @@ app.listen(port, async () => {
       collectionFile = './downloaded-collection.tmp.json'
     } catch (err) {
       logMessage(`FATAL! Failed to download collection from URL\n ${JSON.stringify(err, null, 2)}`)
+      process.exit(1)
+    }
+  }
+
+  // ENV_URL when set takes priority over ENVIRONMENT_FILE
+  if (envUrl) {
+    logMessage(`Postman Environment file URL will be fetched and used ${envUrl}`)
+    try {
+      const httpClient = new http(envUrl, false)
+      let resp = await httpClient.get('')
+      fs.writeFileSync(`./downloaded-env.tmp.json`, resp.data)
+      // Note. Overwrite the ENVIRONMENT_FILE setting if it was already set
+      envFile = './downloaded-env.tmp.json'
+    } catch (err) {
+      logMessage(`FATAL! Failed to download environment from URL\n ${JSON.stringify(err, null, 2)}`)
       process.exit(1)
     }
   }

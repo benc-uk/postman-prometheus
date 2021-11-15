@@ -45,6 +45,7 @@ The dashboard can be found in the [grafana directory](https://github.com/benc-uk
 | ENABLE_BAIL            | Stops the run when a test case or request fails                  | false             |
 | ENABLE_REQUEST_METRICS | Disable the per-request metrics if you wish                      | true              |
 | ENVIRONMENT_FILE       | Path to a Postman environment file                               | _none_            |
+| ENVIRONMENT_URL        | Load a Postman environment from URL, overrides ENVIRONMENT_FILE  | _none_            |
 | POSTMAN\_{varname}     | Environment vars to pass to running the collection               | _none_            |
 
 ## Note on Postman variables
