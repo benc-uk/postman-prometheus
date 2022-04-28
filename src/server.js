@@ -64,7 +64,33 @@ app.get('/metrics', (req, res) => {
           {
             iteration: execution.cursor.iteration,
           },
+          {
+            // eslint-disable-next-line camelcase
+            request_protocol: execution.request.url.protocol,
+          },
+          {
+            // eslint-disable-next-line camelcase
+            request_path: execution.request.url.path.join('/').prefix('/'),
+          },
+          {
+            // eslint-disable-next-line camelcase
+            request_host: execution.request.url.host.join('.'),
+          },
         ]
+
+        if (execution.request.url.port) {
+          labels.push({
+            // eslint-disable-next-line camelcase
+            request_port: execution.request.url.port,
+          })
+        }
+        if (execution.request.url.query.members.length) {
+          labels.push({
+            // eslint-disable-next-line camelcase
+            request_query: execution.request.url.query.map((query) => `${query.key}=${query.value}`).join('&')
+          })
+        }
+
         if (execution.response.code) {
           metricString = addMetric(metricString, 'request_status_code', execution.response.code, 'gauge', labels)
         }
@@ -243,4 +269,8 @@ function addMetric(metrics, name, value, type = 'gauge', labels = []) {
 
 function logMessage(msg) {
   console.log(`### ${new Date().toISOString().replace('T', ' ').substr(0, 16)} ${msg}`)
+}
+
+String.prototype.prefix = function (char) {
+  return this.startsWith(char) ? this : char + this
 }
