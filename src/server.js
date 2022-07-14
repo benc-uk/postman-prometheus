@@ -5,7 +5,7 @@ const http = require('./http.js')
 
 let collectionFile = process.env.COLLECTION_FILE || './collection.json'
 const collectionUrl = process.env.COLLECTION_URL || ''
-const envFile = process.env.ENVIRONMENT_FILE || ''
+let envFile = process.env.ENVIRONMENT_FILE || ''
 const envUrl = process.env.ENV_URL || ''
 const port = process.env.PORT || '8080'
 const runInterval = process.env.RUN_INTERVAL || '30'
