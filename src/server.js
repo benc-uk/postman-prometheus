@@ -4,8 +4,9 @@ const fs = require('fs')
 const http = require('./http.js')
 
 let collectionFile = process.env.COLLECTION_FILE || './collection.json'
+let envFile = process.env.ENVIRONMENT_FILE || ''
 const collectionUrl = process.env.COLLECTION_URL || ''
-const envFile = process.env.ENVIRONMENT_FILE || ''
+const envUrl = process.env.ENV_URL || ''
 const port = process.env.PORT || '8080'
 const runInterval = process.env.RUN_INTERVAL || '30'
 const runIterations = process.env.RUN_ITERATIONS || '1'
@@ -121,6 +122,21 @@ app.listen(port, async () => {
     }
   }
 
+  // ENV_URL when set takes priority over ENVIRONMENT_FILE
+  if (envUrl) {
+    logMessage(`Postman Environment file URL will be fetched and used ${envUrl}`)
+    try {
+      const httpClient = new http(envUrl, false)
+      let resp = await httpClient.get('')
+      fs.writeFileSync(`./downloaded-env.tmp.json`, resp.data)
+      // Note. Overwrite the ENVIRONMENT_FILE setting if it was already set
+      envFile = './downloaded-env.tmp.json'
+    } catch (err) {
+      logMessage(`FATAL! Failed to download environment from URL\n ${JSON.stringify(err, null, 2)}`)
+      process.exit(1)
+    }
+  }
+
   if (!fs.existsSync(collectionFile)) {
     logMessage(`FATAL! Collection file '${collectionFile}' not found`)
     process.exit(1)
@@ -172,23 +188,29 @@ function runComplete(err, summary) {
 
   // This post run loop is for logging of what happened and some data clean up
   for (let e in summary.run.executions) {
-    logMessage(
-      ` - Completed request '${summary.run.executions[e].item.name}' in ${summary.run.executions[e].response.responseTime} ms`
-    )
+    if (summary.run.executions[e].response !== undefined) {
+      logMessage(
+        ` - Completed request '${summary.run.executions[e].item.name}' in ${summary.run.executions[e].response.responseTime} ms`
+      )
 
-    // Junk we don't want in data
-    summary.run.executions[e].response.stream = '*REMOVED*'
+      // Junk we don't want in data
+      summary.run.executions[e].response.stream = '*REMOVED*'
 
-    for (let a in summary.run.executions[e].assertions) {
-      if (summary.run.executions[e].assertions[a].error) {
-        logMessage(
-          `ERROR! Request '${summary.run.executions[e].item.name}' - assertion failed: ${summary.run.executions[e].assertions[a].error.test}, Reason: ${summary.run.executions[e].assertions[a].error.message}`
-        )
+      for (let a in summary.run.executions[e].assertions) {
+        if (summary.run.executions[e].assertions[a].error) {
+          logMessage(
+            `ERROR! Request '${summary.run.executions[e].item.name}' - assertion failed: ${summary.run.executions[e].assertions[a].error.test}, Reason: ${summary.run.executions[e].assertions[a].error.message}`
+          )
 
-        // Junk we don't want in data
-        summary.run.executions[e].assertions[a].error.message = '*REMOVED*'
-        summary.run.executions[e].assertions[a].error.stack = '*REMOVED*'
+          // Junk we don't want in data
+          summary.run.executions[e].assertions[a].error.message = '*REMOVED*'
+          summary.run.executions[e].assertions[a].error.stack = '*REMOVED*'
+        }
       }
+    } else {
+      logMessage(
+        ` - Failed request '${summary.run.executions[e].item.name}' with ${summary.run.executions[e].requestError} `
+      )
     }
   }
   fs.writeFileSync('debug.tmp.json', JSON.stringify(summary, null, 2))
