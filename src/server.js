@@ -15,6 +15,7 @@ const requestMetrics = process.env.ENABLE_REQUEST_METRICS || 'true'
 
 let collectionName = ''
 let resultSummary = {}
+let typeSet = new Set()
 
 // Lifetime global counters
 let runCount = 0
@@ -95,7 +96,8 @@ app.get('/metrics', (req, res) => {
       }
     }
 
-    res.send(metricString)
+    let typeString = Array.from(typeSet).join('')
+    res.send(`${typeString}\n${metricString}`)
   } catch (err) {
     res.status(500).send('No result data to show, maybe the collection has not run yet')
   }
@@ -230,7 +232,7 @@ function runComplete(err, summary) {
 }
 
 function addMetric(metrics, name, value, type = 'gauge', labels = []) {
-  metrics += `# TYPE postman_${name} ${type}\n`
+  typeSet.add(`# TYPE postman_${name} ${type}\n`)
 
   let labelsClone = [...labels]
   labelsClone.push({ collection: collectionName })
