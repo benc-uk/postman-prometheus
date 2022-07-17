@@ -6,6 +6,7 @@ const http = require('./http.js')
 let collectionFile = process.env.COLLECTION_FILE || './collection.json'
 let envFile = process.env.ENVIRONMENT_FILE || ''
 const collectionUrl = process.env.COLLECTION_URL || ''
+const metricsUrlPath = process.env.METRICS_URL_PATH || '/metrics'
 const envUrl = process.env.ENV_URL || ''
 const port = process.env.PORT || '8080'
 const runInterval = process.env.RUN_INTERVAL || '30'
@@ -27,7 +28,7 @@ let reqCount = 0
 
 const app = express()
 
-app.get('/metrics', (req, res) => {
+app.get(metricsUrlPath, (req, res) => {
   res.setHeader('content-type', 'text/plain; charset=utf-8; version=0.0.4')
 
   let metricString = ''
@@ -103,7 +104,7 @@ app.get('/metrics', (req, res) => {
 
 app.get('/', (req, res) => {
   res.setHeader('content-type', 'text/plain')
-  res.status(404).send('Nothing here, try /metrics')
+  res.status(404).send(`Nothing here, try ${metricsUrlPath}`)
 })
 
 app.listen(port, async () => {
@@ -124,7 +125,7 @@ app.listen(port, async () => {
 
   // ENV_URL when set takes priority over ENVIRONMENT_FILE
   if (envUrl) {
-    logMessage(`Postman Environment file URL will be fetched and used ${envUrl}`)
+    logMessage(`Postman environment file URL will be fetched and used ${envUrl}`)
     try {
       const httpClient = new http(envUrl, false)
       let resp = await httpClient.get('')
@@ -143,6 +144,7 @@ app.listen(port, async () => {
   }
 
   logMessage(`Newman runner started & listening on ${port}`)
+  logMessage(`Metrics available for scraping at: http://0.0.0.0:${port}${metricsUrlPath}`)
   logMessage(`Collection will be run every ${runInterval} seconds`)
 
   runCollection()
