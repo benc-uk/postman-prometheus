@@ -4,9 +4,11 @@ This project provides a small Node.js based server which will run a Postman coll
 
 You can use this to monitor the health and performance of web sites and REST APIs, and by using test assertions (see below) you can validate the contents returned, status codes, headers etc. Even chain requests together extracting variables from one request to use with another.
 
-By default the server listens on port 8080 and provides metrics at the standard `/metrics` endpoint. The collection you want to run can be fetched by the runner at startup from a URL you supply, or you can build the runner container with the collection file copied into the image.
+By default the server listens on port 8080 and provides metrics at the standard `/metrics` endpoint (this is configurable). The collection you want to run can be fetched by the runner at startup from a URL you supply, or you can build the runner container with the collection file copied into the image.
 
-The server is containerised and published publicly at ghcr.io/benc-uk/postman-prometheus
+Configuration can be fetched from local files (typically bundled inside the container) or from remote URL sources. This configuration is a Postman collection file (as a JSON export) and **optionally** a Postman environment file (also in JSON)
+
+The server is containerised and published publicly as a container image at `ghcr.io/benc-uk/postman-prometheus`
 
 Kubernetes manifests for deployment are also provided.
 
@@ -35,11 +37,14 @@ The dashboard can be found in the [grafana directory](https://github.com/benc-uk
 
 # Config
 
+When both `COLLECTION_URL` and `COLLECTION_FILE` are set, then `COLLECTION_URL` will take precedence. Likewise for `ENVIRONMENT_FILE` and `ENVIRONMENT_URL`
+
 | Environmental Variable | Purpose                                                          | Default           |
 | ---------------------- | ---------------------------------------------------------------- | ----------------- |
 | PORT                   | Port the server listens on                                       | 8080              |
 | COLLECTION_FILE        | Path to Postman collection file to load and use                  | ./collection.json |
 | COLLECTION_URL         | Load from Postman collection from URL, overrides COLLECTION_FILE | _none_            |
+| REFRESH_INTERVAL       | How frequently fetch and refresh remote collection/env files     | 300               |
 | RUN_INTERVAL           | How frequently to run the collection, in seconds                 | 30                |
 | RUN_ITERATIONS         | How many iterations of the collection to run                     | 1                 |
 | ENABLE_BAIL            | Stops the run when a test case or request fails                  | false             |
@@ -47,6 +52,7 @@ The dashboard can be found in the [grafana directory](https://github.com/benc-uk
 | ENVIRONMENT_FILE       | Path to a Postman environment file                               | _none_            |
 | ENVIRONMENT_URL        | Load a Postman environment from URL, overrides ENVIRONMENT_FILE  | _none_            |
 | POSTMAN\_{varname}     | Environment vars to pass to running the collection               | _none_            |
+| METRICS_URL_PATH       | URL path to serve the metrics from, must start with slash        | /metrics          |
 
 ## Note on Postman variables
 
