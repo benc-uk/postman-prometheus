@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-ARG collectionFile
+ARG collectionFile=samples/example.json
 ARG srcDir=src
 
 COPY $srcDir/package*.json ./
