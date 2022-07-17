@@ -9,6 +9,7 @@ const collectionUrl = process.env.COLLECTION_URL || ''
 const metricsUrlPath = process.env.METRICS_URL_PATH || '/metrics'
 const envUrl = process.env.ENV_URL || ''
 const port = process.env.PORT || '8080'
+const refreshInterval = process.env.REFRESH_INTERVAL || '120'
 const runInterval = process.env.RUN_INTERVAL || '30'
 const runIterations = process.env.RUN_ITERATIONS || '1'
 const enableBail = process.env.ENABLE_BAIL || 'false'
@@ -108,32 +109,54 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, async () => {
+  await fetchConfig()
+  logMessage(`Newman runner started & listening on ${port}`)
+  logMessage(`Metrics available for scraping at: http://0.0.0.0:${port}${metricsUrlPath}`)
+  logMessage(`Collection will be run every ${runInterval} seconds`)
+  logMessage(`Config refresh will be run every ${refreshInterval} seconds`)
+
+  runCollection()
+
+  // Set up repeating timers for refreshing the remote config and running the collection
+  setInterval(async () => {
+    await fetchConfig()
+  }, parseInt(refreshInterval * 1000))
+
+  setInterval(runCollection, parseInt(runInterval * 1000))
+})
+
+//
+// Fetch collection & env file(s)
+//
+
+async function fetchConfig() {
+  logMessage('Refreshing remote collection & env files')
   // COLLECTION_URL when set takes priority over COLLECTION_FILE
   if (collectionUrl) {
-    logMessage(`Collection URL will be fetched and used ${collectionUrl}`)
+    logMessage(` - Collection URL will be fetched and used ${collectionUrl}`)
     try {
       const httpClient = new http(collectionUrl, false)
       let resp = await httpClient.get('')
       fs.writeFileSync(`./downloaded-collection.tmp.json`, resp.data)
-      // Note. Overwrite the COLLECTION_FILE setting if it was already set
+      // Note. Overwrite the COLLECTION_FILE setting to point to downloaded file
       collectionFile = './downloaded-collection.tmp.json'
     } catch (err) {
-      logMessage(`FATAL! Failed to download collection from URL\n ${JSON.stringify(err, null, 2)}`)
+      logMessage(` - FATAL! Failed to download collection from URL\n ${JSON.stringify(err, null, 2)}`)
       process.exit(1)
     }
   }
 
   // ENV_URL when set takes priority over ENVIRONMENT_FILE
   if (envUrl) {
-    logMessage(`Postman environment file URL will be fetched and used ${envUrl}`)
+    logMessage(` - Postman env file URL will be fetched and used ${envUrl}`)
     try {
       const httpClient = new http(envUrl, false)
       let resp = await httpClient.get('')
       fs.writeFileSync(`./downloaded-env.tmp.json`, resp.data)
-      // Note. Overwrite the ENVIRONMENT_FILE setting if it was already set
+      // Note. Overwrite the ENVIRONMENT_FILE setting to point to downloaded file
       envFile = './downloaded-env.tmp.json'
     } catch (err) {
-      logMessage(`FATAL! Failed to download environment from URL\n ${JSON.stringify(err, null, 2)}`)
+      logMessage(` - FATAL! Failed to download env from URL\n ${JSON.stringify(err, null, 2)}`)
       process.exit(1)
     }
   }
@@ -142,20 +165,14 @@ app.listen(port, async () => {
     logMessage(`FATAL! Collection file '${collectionFile}' not found`)
     process.exit(1)
   }
-
-  logMessage(`Newman runner started & listening on ${port}`)
-  logMessage(`Metrics available for scraping at: http://0.0.0.0:${port}${metricsUrlPath}`)
-  logMessage(`Collection will be run every ${runInterval} seconds`)
-
-  runCollection()
-  setInterval(runCollection, parseInt(runInterval * 1000))
-})
+}
 
 //
 // Monitoring and Prometheus functions
 //
 
 function runCollection() {
+  logMessage(`-------------------------------------------------------`)
   logMessage(`Starting run of ${collectionFile}`)
 
   // Special logic to bring all env vars starting with POSTMAN_ into the run
@@ -170,16 +187,32 @@ function runCollection() {
     }
   }
 
-  newman.run(
-    {
-      collection: require(collectionFile),
-      iterationCount: parseInt(runIterations),
-      bail: enableBail == 'true',
-      environment: envFile,
-      envVar: postmanEnvVar,
-    },
-    runComplete
-  )
+  // Load and parse collection and envfile each time, as it might have changed
+  try {
+    const collectionContent = fs.readFileSync(collectionFile)
+    const collectionData = JSON.parse(collectionContent.toString())
+
+    let envData = {}
+    if (envFile) {
+      const envContent = fs.readFileSync(envFile)
+      envData = JSON.parse(envContent.toString())
+    }
+
+    // All the real work is done here
+    newman.run(
+      {
+        collection: collectionData,
+        iterationCount: parseInt(runIterations),
+        bail: enableBail == 'true',
+        environment: envData,
+        envVar: postmanEnvVar,
+      },
+      runComplete
+    )
+  } catch (err) {
+    logMessage(`FATAL! Failed to parse collection or environment file\n ${JSON.stringify(err, null, 2)}`)
+    return
+  }
 }
 
 function runComplete(err, summary) {
