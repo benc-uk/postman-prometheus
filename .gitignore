@@ -3,3 +3,4 @@ node_modules/
 deploy/prometheus-helm/*.yaml
 !deploy/prometheus-helm/*.sample.yaml
 .secrets
+local/**
