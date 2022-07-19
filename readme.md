@@ -20,14 +20,16 @@ Goals:
 Use cases & key features:
 
 - Monitoring of APIs and websites
+- Host your own monitoring with Kubernetes or anywhere you need
 - Go beyond simple single HTTP checks, using Postman's [collection feature](https://learning.postman.com/docs/running-collections/intro-to-collection-runs/) and [test assertions](https://learning.postman.com/docs/writing-scripts/script-references/test-examples/) for checking and chaining
+- Validate HTML or API responses, payloads and even build end to end journeys
 
 ![](https://img.shields.io/github/license/benc-uk/postman-prometheus)
 ![](https://img.shields.io/github/last-commit/benc-uk/postman-prometheus)
 ![](https://img.shields.io/github/release/benc-uk/postman-prometheus)
 ![](https://img.shields.io/github/checks-status/benc-uk/postman-prometheus/main)
 
-# Example
+# 🖼️ Example
 
 This is a screenshot of the provided Grafana dashboard
 
@@ -35,9 +37,7 @@ The dashboard can be found in the [grafana directory](https://github.com/benc-uk
 
 ![screen shot of dashboard](https://user-images.githubusercontent.com/14982936/111913204-fd8a6400-8a64-11eb-95c1-a40f4828d05f.png)
 
-# Config
-
-When both `COLLECTION_URL` and `COLLECTION_FILE` are set, then `COLLECTION_URL` will take precedence. Likewise for `ENVIRONMENT_FILE` and `ENVIRONMENT_URL`
+# ⚙️ Configuration
 
 | Environmental Variable | Purpose                                                          | Default           |
 | ---------------------- | ---------------------------------------------------------------- | ----------------- |
@@ -53,15 +53,18 @@ When both `COLLECTION_URL` and `COLLECTION_FILE` are set, then `COLLECTION_URL` 
 | ENVIRONMENT_URL        | Load a Postman environment from URL, overrides ENVIRONMENT_FILE  | _none_            |
 | POSTMAN\_{varname}     | Environment vars to pass to running the collection               | _none_            |
 | METRICS_URL_PATH       | URL path to serve the metrics from, must start with slash        | /metrics          |
+| STATUS_ENABLED         | Enable/disable the status endpoint.                              | true              |
+
+> NOTE: When both `COLLECTION_URL` and `COLLECTION_FILE` are set, then `COLLECTION_URL` will take precedence. Likewise for `ENVIRONMENT_FILE` and `ENVIRONMENT_URL`. Meaning these configuration settings are effectively mutually exclusive
 
 ## Note on Postman variables
 
 Postman/Newman can [accept variables a number of ways](https://learning.postman.com/docs/sending-requests/variables/) with this runner you supply values for any variables your scripts reference in two ways:
 
-- Environments file, created by defining an environment in Postman and [exporting as JSON](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#exporting-environments)
+- Environments file, this is a JSON file created by defining an environment in Postman and [exporting as JSON](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#exporting-environments)
 - Using special `POSTMAN_{varname}` environment vars, set as regular OS environment vars (therefor settable at runtime from Docker and Kubernetes). The prefix `POSTMAN_` is required and stripped off, leaving the name of the variable to set when running the collection, e.g. if your Postman request referenced a variable `{{myvar}}` you can set it using `POSTMAN_myvar=foo`
 
-# Repo Contents
+# 📃 Repo Contents
 
 📁 `src` - Source of the Node.js runner which wraps Newman  
 📁 `samples` - Example Postman collections for monitoring  
@@ -70,27 +73,32 @@ Postman/Newman can [accept variables a number of ways](https://learning.postman.
 📁 `build` - Dockerfile mostly  
 📁 `scripts` - Some bash scripts
 
-# Using
+# 🔨 Using
 
 Just about everything you need to do with this project has been put into make
 
 ```txt
 $ make
 
-help                 💬 This help message 
+help                 💬 This help message
 run                  🥈 Run locally (requires Node.js) ‍
-image                🔨 Build container image from Dockerfile 
-lint-fix             📜 Lint & format, will try to fix errors and modify code 
-lint                 🔎 Lint & format, will not fix but sets exit code on error 
+image                🔨 Build container image from Dockerfile
+lint-fix             📜 Lint & format, will try to fix errors and modify code
+lint                 🔎 Lint & format, will not fix but sets exit code on error
 push                 📤 Push container image to registry
-deploy               🚀 Deploy to Kubernetes 
-undeploy             💀 Remove from Kubernetes 
+clean                🧹 Clean up local repo
+deploy               🚀 Deploy to Kubernetes
+undeploy             💀 Remove from Kubernetes
 ```
 
 The `deploy` target provides a lightweight "Helm-less" way to deploy to Kubernetes, using envsubst, makefile variables and deploy/deployment.yaml as a template.
 Before running `make deploy` check the `DEPLOY_` variables in the makefile, then either edit or override these
 
-# Exported Metrics
+# 🌐 Other Endpoints
+
+As well as exposing metrics for scraping, the server also exposes a small status API at `/status`, which will show details of the configuration, the loaded collection and some runtime statistics in JSON form. In addition the endpoint `/health` will return an HTTP 200
+
+# 📊 Exported Metrics
 
 Below is a dump of all the metrics the server will export.
 
@@ -118,7 +126,7 @@ postman_lifetime_requests_total{collection="Example"} 276
 postman_stats_iterations_total{collection="Example"} 2
 
 # TYPE postman_stats_iterations_failed gauge
-postman_stats_iterations_failed{collection="Example"} 0 
+postman_stats_iterations_failed{collection="Example"} 0
 
 # TYPE postman_stats_requests_total gauge
 postman_stats_requests_total{collection="Example"} 4
