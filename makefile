@@ -40,6 +40,10 @@ push: ## 📤 Push container image to registry
 run: $(SRC_DIR)/node_modules .EXPORT_ALL_VARIABLES ## 🥈 Run locally using Node.js
 	cd $(SRC_DIR); npm start
 
+clean: ## 🧹 Clean up local repo
+	rm -rf src/*.tmp.*
+	rm -rf src/node_modules
+
 deploy: .EXPORT_ALL_VARIABLES ## 🚀 Deploy to Kubernetes 
 	cat deploy/deployment.yaml | envsubst | kubectl apply -f -
 
