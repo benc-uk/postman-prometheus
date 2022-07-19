@@ -7,6 +7,7 @@ let collectionFile = process.env.COLLECTION_FILE || './collection.json'
 let envFile = process.env.ENVIRONMENT_FILE || ''
 const collectionUrl = process.env.COLLECTION_URL || ''
 const metricsUrlPath = process.env.METRICS_URL_PATH || '/metrics'
+const statusEnabled = process.env.STATUS_ENABLED || 'true'
 const envUrl = process.env.ENV_URL || ''
 const port = process.env.PORT || '8080'
 const refreshInterval = process.env.REFRESH_INTERVAL || '120'
@@ -17,6 +18,9 @@ const requestMetrics = process.env.ENABLE_REQUEST_METRICS || 'true'
 
 let collectionName = ''
 let resultSummary = {}
+// These will hold the parsed collection/env files
+let collectionData
+let envData
 
 // Lifetime global counters
 let runCount = 0
@@ -103,17 +107,65 @@ app.get(metricsUrlPath, (req, res) => {
   }
 })
 
+// I like the root path to at least return something
 app.get('/', (req, res) => {
   res.setHeader('content-type', 'text/plain')
   res.status(404).send(`Nothing here, try ${metricsUrlPath}`)
 })
 
+// A health check endpoint, can be handy for probes
+app.get('/health', (req, res) => {
+  res.setHeader('content-type', 'text/plain')
+  res.status(200).send('OK')
+})
+
+// This endpoint shows the current status of the server, what is being monitored, etc.
+if (statusEnabled == 'true') {
+  app.get('/status', (req, res) => {
+    res.setHeader('content-type', 'application/json')
+
+    // Get a simple summary of the loaded collection
+    let monitoredRequests = []
+    for (let item of collectionData.item) {
+      monitoredRequests.push({
+        name: item.name,
+        url: item.request.url.raw,
+        method: item.request.method,
+      })
+    }
+
+    // Return a status summary object
+    const status = {
+      version: require('./package.json').version,
+      config: {
+        runInterval: parseInt(runInterval),
+        refreshInterval: parseInt(refreshInterval),
+        enableBail: enableBail == 'true',
+        collectionSource: collectionUrl ? collectionUrl : collectionFile,
+        envSource: envUrl ? envUrl : envFile,
+        requestMetrics: requestMetrics == 'true',
+        collectionName: collectionName,
+      },
+      runtimeCounters: {
+        runCount,
+        iterationCount,
+        reqCount,
+      },
+      monitoredRequests,
+    }
+    res.status(200).send(JSON.stringify(status))
+  })
+}
+
 app.listen(port, async () => {
   await fetchConfig()
   logMessage(`Newman runner started & listening on ${port}`)
-  logMessage(`Metrics available for scraping at: http://0.0.0.0:${port}${metricsUrlPath}`)
-  logMessage(`Collection will be run every ${runInterval} seconds`)
-  logMessage(`Config refresh will be run every ${refreshInterval} seconds`)
+  logMessage(` - Metrics available for scraping at: http://0.0.0.0:${port}${metricsUrlPath}`)
+  if (statusEnabled == 'true') {
+    logMessage(` - Status API endpoint: http://0.0.0.0:${port}/status`)
+  }
+  logMessage(` - Collection will be run every ${runInterval} seconds`)
+  logMessage(` - Config refresh will be run every ${refreshInterval} seconds`)
 
   runCollection()
 
@@ -190,9 +242,9 @@ function runCollection() {
   // Load and parse collection and envfile each time, as it might have changed
   try {
     const collectionContent = fs.readFileSync(collectionFile)
-    const collectionData = JSON.parse(collectionContent.toString())
+    collectionData = JSON.parse(collectionContent.toString())
 
-    let envData = {}
+    envData = {}
     if (envFile) {
       const envContent = fs.readFileSync(envFile)
       envData = JSON.parse(envContent.toString())
