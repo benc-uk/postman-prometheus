@@ -8,7 +8,7 @@ let envFile = process.env.ENVIRONMENT_FILE || ''
 const collectionUrl = process.env.COLLECTION_URL || ''
 const metricsUrlPath = process.env.METRICS_URL_PATH || '/metrics'
 const statusEnabled = process.env.STATUS_ENABLED || 'true'
-const envUrl = process.env.ENV_URL || ''
+const envUrl = process.env.ENVIRONMENT_URL || ''
 const port = process.env.PORT || '8080'
 const refreshInterval = process.env.REFRESH_INTERVAL || '120'
 const runInterval = process.env.RUN_INTERVAL || '30'
@@ -198,7 +198,7 @@ async function fetchConfig() {
     }
   }
 
-  // ENV_URL when set takes priority over ENVIRONMENT_FILE
+  // ENVIRONMENT_URL when set takes priority over ENVIRONMENT_FILE
   if (envUrl) {
     logMessage(` - Postman env file URL will be fetched and used ${envUrl}`)
     try {
