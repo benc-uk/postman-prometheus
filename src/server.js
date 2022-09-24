@@ -15,6 +15,7 @@ const runInterval = process.env.RUN_INTERVAL || '30'
 const runIterations = process.env.RUN_ITERATIONS || '1'
 const enableBail = process.env.ENABLE_BAIL || 'false'
 const requestMetrics = process.env.ENABLE_REQUEST_METRICS || 'true'
+const generateDebugFile = process.env.ENABLE_DEBUG_FILE || 'false'
 
 let collectionName = ''
 let resultSummary = {}
@@ -301,7 +302,9 @@ function runComplete(err, summary) {
       )
     }
   }
-  fs.writeFileSync('debug.tmp.json', JSON.stringify(summary, null, 2))
+  if (generateDebugFile=='true') {
+    fs.writeFileSync('debug.tmp.json', JSON.stringify(summary, null, 2))
+  }
 
   const time = summary.run.timings.completed - summary.run.timings.started
   logMessage(`Run complete, and took ${time}ms`)
