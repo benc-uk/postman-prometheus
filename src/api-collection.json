@@ -1,0 +1,84 @@
+{
+	"info": {
+		"_postman_id": "12631b97-4c03-44cf-b0c8-5f6aa1ce068a",
+		"name": "api-monitoring",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11548032"
+	},
+	"item": [
+		{
+			"name": "研发环境-apidemo-get-映射模式",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var data = jsonData.data;\r",
+							"// tests[\"大数医达返回url成功\"] = data !== null;\r",
+							"pm.test(\"接口返回成功\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.status).to.eql(\"成功\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"kevin\",\r\n    \"password\": \"liu\"\r\n}"
+				},
+				"url": {
+					"raw": "http://10.159.5.65/dev/apidemo/get",
+					"protocol": "http",
+					"host": [
+						"10",
+						"159",
+						"5",
+						"65"
+					],
+					"path": [
+						"dev",
+						"apidemo",
+						"get"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "10.159.5.81",
+			"type": "string"
+		}
+	]
+}

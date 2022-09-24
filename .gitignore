@@ -4,3 +4,5 @@ deploy/prometheus-helm/*.yaml
 !deploy/prometheus-helm/*.sample.yaml
 .secrets
 local/**
+src/node_modules
+src/*.tmp.json

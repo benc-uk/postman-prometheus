@@ -277,10 +277,11 @@ function runComplete(err, summary) {
   for (let e in summary.run.executions) {
     if (summary.run.executions[e].response !== undefined) {
       logMessage(
-        ` - Completed request '${summary.run.executions[e].item.name}' in ${summary.run.executions[e].response.responseTime} ms`
+        ` - Completed request '${summary.run.executions[e].item.name}' in ${summary.run.executions[e].response.responseTime} ms ,Response Content is: ${summary.run.executions[e].response.stream}`
       )
-
-      // Junk we don't want in data
+      // Transfer Reponse body from byte to json string
+      summary.run.executions[e].response.body = JSON.parse(summary.run.executions[e].response.stream.toString())
+      // Remove the original stream data
       summary.run.executions[e].response.stream = '*REMOVED*'
 
       for (let a in summary.run.executions[e].assertions) {
@@ -290,8 +291,8 @@ function runComplete(err, summary) {
           )
 
           // Junk we don't want in data
-          summary.run.executions[e].assertions[a].error.message = '*REMOVED*'
-          summary.run.executions[e].assertions[a].error.stack = '*REMOVED*'
+          // summary.run.executions[e].assertions[a].error.message = '*REMOVED*'
+          // summary.run.executions[e].assertions[a].error.stack = '*REMOVED*'
         }
       }
     } else {
