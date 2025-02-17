@@ -224,7 +224,7 @@ async function fetchConfig() {
       let resp = await httpClient.get('')
       fs.writeFileSync(`./downloaded-global.tmp.json`, resp.data)
       // Note. Overwrite the GLOBAL_FILE setting to point to downloaded file
-      envFile = './downloaded-global.tmp.json'
+      globalFile = './downloaded-global.tmp.json'
     } catch (err) {
       logMessage(` - FATAL! Failed to download global from URL\n ${JSON.stringify(err, null, 2)}`)
       process.exit(1)
@@ -282,7 +282,7 @@ function runCollection() {
         bail: enableBail == 'true',
         environment: envData,
         envVar: postmanEnvVar,
-        globals: postmanGlobals,
+        globals: globalData,
       },
       runComplete
     )
