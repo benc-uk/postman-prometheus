@@ -5,10 +5,12 @@ const http = require('./http.js')
 
 let collectionFile = process.env.COLLECTION_FILE || './collection.json'
 let envFile = process.env.ENVIRONMENT_FILE || ''
+let globalFile = process.env.GLOBAL_FILE || ''
 const collectionUrl = process.env.COLLECTION_URL || ''
 const metricsUrlPath = process.env.METRICS_URL_PATH || '/metrics'
 const statusEnabled = process.env.STATUS_ENABLED || 'true'
 const envUrl = process.env.ENVIRONMENT_URL || ''
+const globalUrl = process.env.GLOBAL_URL || ''
 const port = process.env.PORT || '8080'
 const refreshInterval = process.env.REFRESH_INTERVAL || '120'
 const runInterval = process.env.RUN_INTERVAL || '30'
@@ -143,6 +145,7 @@ if (statusEnabled == 'true') {
         enableBail: enableBail == 'true',
         collectionSource: collectionUrl ? collectionUrl : collectionFile,
         envSource: envUrl ? envUrl : envFile,
+        globalsource: globalUrl ? globalUrl : globalFile,
         requestMetrics: requestMetrics == 'true',
         collectionName: collectionName,
       },
@@ -213,6 +216,21 @@ async function fetchConfig() {
     }
   }
 
+  // GLOBAL_URL when set takes priority over GLOBAL_FILE
+  if (globalUrl) {
+    logMessage(` - Postman global file URL will be fetched and used ${globalUrl}`)
+    try {
+      const httpClient = new http(globalUrl, false)
+      let resp = await httpClient.get('')
+      fs.writeFileSync(`./downloaded-global.tmp.json`, resp.data)
+      // Note. Overwrite the GLOBAL_FILE setting to point to downloaded file
+      envFile = './downloaded-global.tmp.json'
+    } catch (err) {
+      logMessage(` - FATAL! Failed to download global from URL\n ${JSON.stringify(err, null, 2)}`)
+      process.exit(1)
+    }
+  }
+
   if (!fs.existsSync(collectionFile)) {
     logMessage(`FATAL! Collection file '${collectionFile}' not found`)
     process.exit(1)
@@ -249,6 +267,12 @@ function runCollection() {
       const envContent = fs.readFileSync(envFile)
       envData = JSON.parse(envContent.toString())
     }
+    
+    globalData = {}
+    if (globalFile) {
+      const globalContent = fs.readFileSync(globalFile)
+      globalData = JSON.parse(globalContent.toString())
+    }
 
     // All the real work is done here
     newman.run(
@@ -258,6 +282,7 @@ function runCollection() {
         bail: enableBail == 'true',
         environment: envData,
         envVar: postmanEnvVar,
+        globals: postmanGlobals,
       },
       runComplete
     )
