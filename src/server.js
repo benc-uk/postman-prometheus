@@ -23,6 +23,7 @@ let resultSummary = {}
 // These will hold the parsed collection/env files
 let collectionData
 let envData
+let globalData
 
 // Lifetime global counters
 let runCount = 0
@@ -267,7 +268,7 @@ function runCollection() {
       const envContent = fs.readFileSync(envFile)
       envData = JSON.parse(envContent.toString())
     }
-    
+
     globalData = {}
     if (globalFile) {
       const globalContent = fs.readFileSync(globalFile)
