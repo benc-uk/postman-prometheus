@@ -51,11 +51,13 @@ The dashboard can be found in the [grafana directory](https://github.com/benc-uk
 | ENABLE_REQUEST_METRICS | Disable the per-request metrics if you wish                      | true              |
 | ENVIRONMENT_FILE       | Path to a Postman environment file                               | _none_            |
 | ENVIRONMENT_URL        | Load a Postman environment from URL, overrides ENVIRONMENT_FILE  | _none_            |
+| GLOBAL_FILE            | Path to a Postman globals file                                   | _none_            |
+| GLOBAL_URL             | Load Postman globals from URL, overrides GLOBAL_FILE             | _none_            |
 | POSTMAN\_{varname}     | Environment vars to pass to running the collection               | _none_            |
 | METRICS_URL_PATH       | URL path to serve the metrics from, must start with slash        | /metrics          |
 | STATUS_ENABLED         | Enable/disable the status endpoint.                              | true              |
 
-> NOTE: When both `COLLECTION_URL` and `COLLECTION_FILE` are set, then `COLLECTION_URL` will take precedence. Likewise for `ENVIRONMENT_FILE` and `ENVIRONMENT_URL`. Meaning these configuration settings are effectively mutually exclusive
+> NOTE: When both `COLLECTION_URL` and `COLLECTION_FILE` are set, then `COLLECTION_URL` will take precedence. Likewise for `ENVIRONMENT_FILE` and `ENVIRONMENT_URL` and also `GLOBAL_FILE` and `GLOBAL_URL`. Meaning these configuration settings are effectively mutually exclusive
 
 ## Note on Postman variables
 
